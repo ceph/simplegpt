@@ -75,7 +75,7 @@ def read_partitions(fp, header, lba_size=512):
             unique=str(uuid.UUID(bytes=part.unique)),
             # do C-style string termination; otherwise you'll see a
             # long row of NILs for most names
-            name=part.name.split('\0', 1)[0],
+            name=part.name.decode('utf-16').split('\0', 1)[0],
             )
         yield part
 
