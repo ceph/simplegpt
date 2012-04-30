@@ -56,7 +56,7 @@ def read_header(fp, lba_size=512):
     if header.revision != '\x00\x00\x01\x00':
         raise GPTError('Bad revision: %r' % header.revision)
     header = header._replace(
-        disk_guid=str(uuid.UUID(bytes=header.disk_guid)),
+        disk_guid=str(uuid.UUID(bytes_le=header.disk_guid)),
         )
     return header
 
@@ -71,8 +71,8 @@ def read_partitions(fp, header, lba_size=512):
         if part.type == 16*'\x00':
             continue
         part = part._replace(
-            type=str(uuid.UUID(bytes=part.type)),
-            unique=str(uuid.UUID(bytes=part.unique)),
+            type=str(uuid.UUID(bytes_le=part.type)),
+            unique=str(uuid.UUID(bytes_le=part.unique)),
             # do C-style string termination; otherwise you'll see a
             # long row of NILs for most names
             name=part.name.decode('utf-16').split('\0', 1)[0],
