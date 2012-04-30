@@ -35,11 +35,11 @@ Q flags
 72s name
 """
 
-def _make_fmt(name, format):
+def _make_fmt(name, format, extras=[]):
     type_and_name = [l.split(None, 1) for l in format.strip().splitlines()]
     fmt = ''.join(t for (t,n) in type_and_name)
     fmt = '<'+fmt
-    tupletype = collections.namedtuple(name, [n for (t,n) in type_and_name if n!='_'])
+    tupletype = collections.namedtuple(name, [n for (t,n) in type_and_name if n!='_']+extras)
     return (fmt, tupletype)
 
 class GPTError(Exception):
@@ -62,12 +62,12 @@ def read_header(fp, lba_size=512):
 
 def read_partitions(fp, header, lba_size=512):
     fp.seek(header.part_entry_start_lba * lba_size)
-    fmt, GPTPartition = _make_fmt('GPTPartition', GPT_PARTITION_FORMAT)
-    for _ in xrange(header.num_part_entries):
+    fmt, GPTPartition = _make_fmt('GPTPartition', GPT_PARTITION_FORMAT, extras=['index'])
+    for idx in xrange(1, 1+header.num_part_entries):
         data = fp.read(header.part_entry_size)
         if len(data) < struct.calcsize(fmt):
             raise GPTError('Short partition entry')
-        part = GPTPartition._make(struct.unpack(fmt, data))
+        part = GPTPartition._make(struct.unpack(fmt, data) + (idx,))
         if part.type == 16*'\x00':
             continue
         part = part._replace(
