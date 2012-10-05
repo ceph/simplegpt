@@ -55,6 +55,9 @@ def read_header(fp, lba_size=512):
         raise GPTError('Bad signature: %r' % header.signature)
     if header.revision != '\x00\x00\x01\x00':
         raise GPTError('Bad revision: %r' % header.revision)
+    if header.header_size < 92:
+        raise GPTError('Bad header size: %r' % header.header_size)
+    # TODO check crc32
     header = header._replace(
         disk_guid=str(uuid.UUID(bytes_le=header.disk_guid)),
         )
