@@ -85,5 +85,4 @@ def read_partitions(fp, header, lba_size=512):
 if __name__ == '__main__':
     header = read_header(sys.stdin)
     for part in read_partitions(sys.stdin, header):
-        if part.type == 'a2a0d0eb-e5b9-3344-87c0-68b6b72699c7':
-            print part
+        print part
